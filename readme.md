@@ -9,3 +9,9 @@ conda activate text-classification
 pip install -e .
 ```
 
+##
+
+```sh
+python setup.py sdist --formats=gztar
+gsutil cp dist/text-classification-0.1.tar.gz gs://haba-ws/container/
+```

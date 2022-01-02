@@ -11,6 +11,7 @@ from torch import nn
 from datasets import load_metric
 import os
 from google.cloud import storage
+import torch
 
 
 def create_training_arguments(args):

@@ -6,13 +6,14 @@ requirements = [
     "pandas==1.3.5",
     "transformers==4.14.1",
     "scikit-learn==1.0.2",
-    "numpy==1.22.0",
+    "numpy==1.21.5",
     "fsspec==2021.11.1",
     "gcsfs==2021.11.1",
     "google-cloud-storage==1.43.0",
     "google-cloud-logging==2.7.0",
     "datasets==1.17.0",
-    "tensorboardX==2.4.1"
+    "tensorboardX==2.4.1",
+    "google-cloud-aiplatform==1.8.1"
 ]
 
 setup(
