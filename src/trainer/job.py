@@ -13,6 +13,7 @@ def run_training_job(
     output_path: str,
     batch_size: int,
     eval_steps: int,
+    early_stopping_patience: int,
     region: str,
     api_endpoint: str,
     package_uri: str,
@@ -39,7 +40,8 @@ def run_training_job(
         "--output-path=" + output_path,
         "--batch-size=" + str(batch_size),
         "--epochs=" + str(epochs),
-        "--eval-steps=" + str(eval_steps)
+        "--eval-steps=" + str(eval_steps),
+        "--early-stopping-patience=" + str(early_stopping_patience)
     ]
 
     # The AI Platform services require regional API endpoints.

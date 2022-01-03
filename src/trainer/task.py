@@ -5,14 +5,15 @@ import google.cloud.logging
 import logging
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoConfig, AutoModelForSequenceClassification, EarlyStoppingCallback
-from trainer.training import (
+from trainer.utils import (
     create_training_arguments,
     SaveModelCallback,
     MulticlassTrainer,
     compute_metrics,
+    get_label_ids,
+    pickle_to_bucket
 )
 from trainer.data import TextDataset
-from trainer.utils import get_label_ids, pickle_to_bucket
 
 if __name__ == "__main__":
     try:
@@ -82,13 +83,13 @@ if __name__ == "__main__":
         # Create Torch datasets
         logging.info("Create datasets")
         train_dataset = TextDataset(
-            texts=data[data.ml_use == "training"].text,
-            labels=data[data.ml_use == "training"].y,
+            texts=data[data.ml_use == "training"].text.values,
+            labels=data[data.ml_use == "training"].y.values,
             bert_version=args.bert_version,
         )
         valid_dataset = TextDataset(
-            texts=data[data.ml_use == "validation"].text,
-            labels=data[data.ml_use == "validation"].y,
+            texts=data[data.ml_use == "validation"].text.values,
+            labels=data[data.ml_use == "validation"].y.values,
             bert_version=args.bert_version,
         )
 
