@@ -4,11 +4,9 @@ import pickle
 from google.cloud import storage
 from typing import Any
 from transformers import (
-    AutoConfig,
-    AutoModelForSequenceClassification,
     Trainer,
     TrainerCallback,
-    TrainingArguments,
+    TrainingArguments
 )
 import numpy as np
 import pickle
@@ -17,6 +15,7 @@ from datasets import load_metric
 import os
 from google.cloud import storage
 import torch
+import google.cloud.logging
 
 
 def create_training_arguments(args):
@@ -116,7 +115,26 @@ def pickle_to_bucket(
     temp_file = "temp/temp.pkl"
     with open(temp_file, "wb") as f:
         pickle.dump(object, f)
-    storage_client = storage.Client(project=project_name)
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(bucket_uri)
-    blob.upload_from_filename(temp_file)
+
+    upload_file_to_bucket(project_name, bucket_name, bucket_uri, temp_file)    
+
+
+def download_file_from_bucket(project: str, bucket: str, file_path: str, local_path: str):
+    storage_client = storage.Client(project)
+    bucket = storage_client.bucket(bucket)
+    blob = bucket.blob(file_path)
+    os.makedirs("temp", exist_ok=True)
+    blob.download_to_filename(local_path)
+
+
+def upload_file_to_bucket(project: str, bucket: str, file_path: str, local_path: str):
+    storage_client = storage.Client(project)
+    bucket = storage_client.bucket(bucket)
+    blob = bucket.blob(file_path)
+    blob.upload_from_filename(local_path)
+
+
+def setup_cloud_logging(project):
+    loggin_client = google.cloud.logging.Client(project=project)
+    loggin_client.get_default_handler()
+    loggin_client.setup_logging()

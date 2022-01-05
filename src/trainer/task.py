@@ -11,7 +11,8 @@ from trainer.utils import (
     MulticlassTrainer,
     compute_metrics,
     get_label_ids,
-    pickle_to_bucket
+    pickle_to_bucket,
+    setup_cloud_logging
 )
 from trainer.data import TextDataset
 
@@ -64,11 +65,7 @@ if __name__ == "__main__":
         args = parser.parse_args()
 
         # Setup logging
-        loggin_client = google.cloud.logging.Client(project=args.project)
-        loggin_client.get_default_handler()
-        loggin_client.setup_logging()
-
-        logging.info(args.__dict__)
+        setup_cloud_logging(args.project)
 
         # Load training data
         logging.info("Load data")
