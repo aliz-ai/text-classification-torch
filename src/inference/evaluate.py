@@ -1,16 +1,16 @@
-from transformers.pipelines import pipeline
-import logging
 import argparse
-from typing import List
-from inference.predict import predict
-from trainer.utils import upload_file_to_bucket
-from sklearn.metrics import classification_report
 import os
-from trainer.utils import setup_cloud_logging
+
 import pandas as pd
+from sklearn.metrics import classification_report
+
+from inference.predict import predict
+from trainer.utils import setup_cloud_logging, upload_file_to_bucket
 
 
 def evaluate(y_true, y_pred, args):
+    """Evaluate classification and upload report to a bucket."""
+
     # Evaluate
     report = classification_report(y_true, y_pred)
 
@@ -19,12 +19,12 @@ def evaluate(y_true, y_pred, args):
     local_path = "temp/report.txt"
     with open(local_path, "w") as f:
         f.write(report)
-    
+
     upload_file_to_bucket(
         project=args.project,
         bucket=args.bucket,
         file_path=f"{args.output_path}/report.txt",
-        local_path=local_path
+        local_path=local_path,
     )
 
 
@@ -65,10 +65,8 @@ if __name__ == "__main__":
     parser.add_argument("--bert-version", default="bert-base-cased", type=str)
     args = parser.parse_args()
 
-
     # Setup cloud logging
     setup_cloud_logging(args.project)
-    
 
     # Load test set
     data = pd.read_csv(args.data)
@@ -78,5 +76,5 @@ if __name__ == "__main__":
     # Predict
     preds = predict(texts, args)
 
-    # Evaluation
+    # Evaluate on test set
     evaluate(labels, preds, args)

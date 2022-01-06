@@ -14,7 +14,7 @@ requirements = [
     "datasets==1.17.0",
     "tensorboardX==2.4.1",
     "tensorboard==2.7.0",
-    "google-cloud-aiplatform==1.8.1"
+    "google-cloud-aiplatform==1.8.1",
 ]
 
 setup(

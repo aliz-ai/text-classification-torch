@@ -1,12 +1,16 @@
 from typing import List
+
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 
 
 class TextDataset(Dataset):
-    def __init__(
-        self, texts: List[str], labels: List[int], bert_version: str
-    ):
+    """
+    Torch dataset for text data. Samples are returned in the required format for the
+    Huggingface Trainer. Text is tokenized online.
+    """
+
+    def __init__(self, texts: List[str], labels: List[int], bert_version: str):
         self.tokenizer = AutoTokenizer.from_pretrained(bert_version)
 
         self.texts = texts

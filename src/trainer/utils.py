@@ -1,24 +1,19 @@
 import os
 import pickle
-
-from google.cloud import storage
 from typing import Any
-from transformers import (
-    Trainer,
-    TrainerCallback,
-    TrainingArguments
-)
-import numpy as np
-import pickle
-from torch import nn
-from datasets import load_metric
-import os
-from google.cloud import storage
-import torch
+
 import google.cloud.logging
+import numpy as np
+import torch
+from datasets import load_metric
+from google.cloud import storage
+from torch import nn
+from transformers import Trainer, TrainerCallback, TrainingArguments
 
 
 def create_training_arguments(args):
+    """Sets up required training arguments."""
+
     training_args = TrainingArguments(
         output_dir=f"{args.output_path}/model",
         do_train=True,
@@ -28,7 +23,7 @@ def create_training_arguments(args):
         warmup_steps=1000,
         evaluation_strategy="steps",
         save_strategy="steps",
-        eval_steps=args.eval_steps, 
+        eval_steps=args.eval_steps,
         save_steps=args.eval_steps,
         num_train_epochs=args.epochs,
         dataloader_num_workers=0,
@@ -40,8 +35,9 @@ def create_training_arguments(args):
     return training_args
 
 
-# Create loss function (CrossEntropyLoss) for multiclass classification
 class MulticlassTrainer(Trainer):
+    """Create loss function (CrossEntropyLoss) for multiclass classification"""
+
     def compute_loss(self, model, inputs, return_outputs=False):
         labels = inputs.pop("labels")
         outputs = model(**inputs)
@@ -53,15 +49,19 @@ class MulticlassTrainer(Trainer):
         )
         return (loss, outputs) if return_outputs else loss
 
+
 metric = load_metric("accuracy")
+
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
     return metric.compute(predictions=predictions, references=labels)
 
+
 class SaveModelCallback(TrainerCallback):
     """Saves model checkpoint to GCS bucket"""
+
     def __init__(self, training_args, model, *args, **kwargs) -> None:
         super().__init__(*args, *kwargs)
         self.args = training_args
@@ -73,10 +73,7 @@ class SaveModelCallback(TrainerCallback):
             best_val_loss = None
             for log in state.log_history:
                 if "eval_loss" in log:
-                    if (
-                        best_val_loss is None
-                        or log["eval_loss"] < best_val_loss
-                    ):
+                    if best_val_loss is None or log["eval_loss"] < best_val_loss:
                         best_val_loss = log["eval_loss"]
                         best_step = log["step"]
             return best_step
@@ -95,7 +92,9 @@ class SaveModelCallback(TrainerCallback):
             blob = bucket.blob(f"{self.args.output_path}/model.pt")
             blob.upload_from_filename("temp/model.pt")
 
+
 def get_label_ids(encoder):
+    """Creates label-id transformation dictionaries from class names."""
     label2id = {}
     id2label = {}
     for id, label in enumerate(encoder.classes_):
@@ -116,10 +115,12 @@ def pickle_to_bucket(
     with open(temp_file, "wb") as f:
         pickle.dump(object, f)
 
-    upload_file_to_bucket(project_name, bucket_name, bucket_uri, temp_file)    
+    upload_file_to_bucket(project_name, bucket_name, bucket_uri, temp_file)
 
 
-def download_file_from_bucket(project: str, bucket: str, file_path: str, local_path: str):
+def download_file_from_bucket(
+    project: str, bucket: str, file_path: str, local_path: str
+):
     storage_client = storage.Client(project)
     bucket = storage_client.bucket(bucket)
     blob = bucket.blob(file_path)
@@ -135,6 +136,12 @@ def upload_file_to_bucket(project: str, bucket: str, file_path: str, local_path:
 
 
 def setup_cloud_logging(project):
+    """
+    Sets up cloud logging.
+    You can use the regular logging library to log everything as you did before locally.
+    Check your logs with Logs Explorer on Console.
+    """
+
     loggin_client = google.cloud.logging.Client(project=project)
     loggin_client.get_default_handler()
     loggin_client.setup_logging()

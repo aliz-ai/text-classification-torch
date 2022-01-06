@@ -1,14 +1,14 @@
-from transformers import TextClassificationPipeline, AutoTokenizer
-from transformers.pipelines import pipeline
-import logging
-
-import torch
-from inference.utils import load_label_id, create_model, load_model
 import argparse
-from typing import List, Dict
-from trainer.utils import setup_cloud_logging, upload_file_to_bucket
-import pandas as pd
+import logging
 import os
+from typing import Dict, List
+
+import pandas as pd
+import torch
+from transformers import AutoTokenizer, TextClassificationPipeline
+
+from inference.utils import create_model, load_label_id, load_model
+from trainer.utils import setup_cloud_logging, upload_file_to_bucket
 
 
 def predict(texts: List[str], args: Dict):
@@ -29,7 +29,6 @@ def predict(texts: List[str], args: Dict):
     )
     tokenizer = AutoTokenizer.from_pretrained(args.bert_version)
 
-
     # Create prediction pipeline
     pipe = TextClassificationPipeline(
         model=model,
@@ -48,12 +47,12 @@ def save_preds(preds: List[str], args: Dict):
     os.makedirs("temp", exist_ok=True)
     local_path = "temp/preds.csv"
     pd.DataFrame(preds).to_csv(local_path, header=None, index=False)
-    
+
     upload_file_to_bucket(
         project=args.project,
         bucket=args.bucket,
         file_path=f"{args.output_path}/preds.csv",
-        local_path=local_path
+        local_path=local_path,
     )
 
 
@@ -93,7 +92,6 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", default=16, type=int)
     parser.add_argument("--bert-version", default="bert-base-cased", type=str)
     args = parser.parse_args()
-
 
     # Setup logging
     setup_cloud_logging(args.project)

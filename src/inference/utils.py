@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 
 import torch
 from transformers import AutoConfig, AutoModelForSequenceClassification
+
 from trainer.utils import download_file_from_bucket
 
 
@@ -25,13 +26,14 @@ def load_model(
 ):
     local_path = "temp/model.pt"
     download_file_from_bucket(project, bucket, model_path, local_path)
-    
+
     state = torch.load(local_path, map_location=device)
 
     model.load_state_dict(state)
     model.eval()
     model = model.to(device)
     return model
+
 
 def load_label_id(project: str, bucket: str, label_id_path: str) -> Tuple[Dict, Dict]:
     local_path = "temp/label_id.pkl"

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import gapic as aip
@@ -15,8 +14,10 @@ def run_prediction_job(
     batch_size: int,
     region: str,
     api_endpoint: str,
-    package_uri: str
+    package_uri: str,
 ):
+    """Creates a parameterized prediction job with a custom model."""
+
     EVAL_GPU, EVAL_NGPU = (aip.AcceleratorType.NVIDIA_TESLA_V100, 1)
     EVAL_IMAGE = "europe-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:m82"
     EVAL_COMPUTE = "n1-standard-4"
@@ -59,7 +60,7 @@ def run_prediction_job(
                     },
                 }
             ]
-        }
+        },
     }
     parent = f"projects/{project}/locations/{region}"
     response = client.create_custom_job(parent=parent, custom_job=custom_job)
@@ -78,8 +79,10 @@ def run_evaluation_job(
     batch_size: int,
     region: str,
     api_endpoint: str,
-    package_uri: str
+    package_uri: str,
 ):
+    """Creates a parameterized evaluation job with a custom model."""
+
     EVAL_GPU, EVAL_NGPU = (aip.AcceleratorType.NVIDIA_TESLA_V100, 1)
     EVAL_IMAGE = "europe-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:m82"
     EVAL_COMPUTE = "n1-standard-4"
@@ -122,7 +125,7 @@ def run_evaluation_job(
                     },
                 }
             ]
-        }
+        },
     }
     parent = f"projects/{project}/locations/{region}"
     response = client.create_custom_job(parent=parent, custom_job=custom_job)

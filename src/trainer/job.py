@@ -17,13 +17,10 @@ def run_training_job(
     region: str,
     api_endpoint: str,
     package_uri: str,
-    n_gpu: int = 4
+    n_gpu: int = 4,
 ):
-    """
-    :param model_datetime: Model ID of previously trained model.
-    If None a general multilingual pretrained BERT will be loaded.
-    :param model_step: Checkpoint of the model to be loaded.
-    """
+    """Creates a parameterized training job with a custom model."""
+
     TRAIN_GPU, TRAIN_NGPU = (aip.AcceleratorType.NVIDIA_TESLA_V100, n_gpu)
     TRAIN_IMAGE = "europe-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-9:m82"
     TRAIN_COMPUTE = "n1-standard-4"
@@ -40,7 +37,7 @@ def run_training_job(
         "--batch-size=" + str(batch_size),
         "--epochs=" + str(epochs),
         "--eval-steps=" + str(eval_steps),
-        "--early-stopping-patience=" + str(early_stopping_patience)
+        "--early-stopping-patience=" + str(early_stopping_patience),
     ]
 
     # The AI Platform services require regional API endpoints.
@@ -67,7 +64,7 @@ def run_training_job(
                     },
                 }
             ]
-        }
+        },
     }
     parent = f"projects/{project}/locations/{region}"
     response = client.create_custom_job(parent=parent, custom_job=custom_job)
