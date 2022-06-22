@@ -6,7 +6,7 @@ requirements = [
     "pandas==1.3.5",
     "transformers==4.14.1",
     "scikit-learn==1.0.2",
-    "numpy==1.21.5",
+    "numpy==1.22.0",
     "fsspec==2021.11.1",
     "gcsfs==2021.11.1",
     "google-cloud-storage==1.43.0",
