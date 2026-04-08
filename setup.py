@@ -4,7 +4,7 @@ DESCRIPTION = "Text Classification with Huggingface"
 
 requirements = [
     "pandas==1.3.5",
-    "transformers==4.14.1",
+    "transformers==5.0.0rc3",
     "scikit-learn==1.0.2",
     "numpy==1.21.5",
     "fsspec==2021.11.1",
